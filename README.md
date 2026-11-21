@@ -78,7 +78,7 @@ if not is_valid:
 Per le aziende che necessitano di audit di sicurezza per l'IA, protezione di agenti autonomi su WhatsApp/web o conformità all'AI Act europeo:
 
 * **Portale Aziendale:** [TAVARDT Italia](https://ag.tavardt.com/it/super-intelligence/)
-* **Canale di Contatto Tecnico:** [Richiedi Supporto Ingegneristico](https://ag.tavardt.com/it/contatti/)
+* **Canale di Contatto Tecnico:** [Contatta il Team di Ingegneria](https://ag.tavardt.com/it/contatti/)
 
 ---
 
