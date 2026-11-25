@@ -82,18 +82,17 @@ Per le aziende che necessitano di audit di sicurezza per l'IA, protezione di age
 
 ***
 
-## Licenza
-
-Distribuito sotto licenza open-source MIT. Consultare il file [`LICENSE`](LICENSE) per maggiori informazioni.  
-Copyright
-
-***
-
 ## Link Utili
 
 * **Portale Aziendale:** https://ag.tavardt.com/it/
 * **Suite di Diagnostica:** https://tools.tavardt.com/it/
 * **Contatto Tecnico:** https://ag.tavardt.com/it/contatto/
+
+***
+
+### Licenza
+
+Distribuito sotto licenza open-source MIT. Consultare il file [`LICENSE`](LICENSE) per maggiori informazioni.
 
 ***
 
