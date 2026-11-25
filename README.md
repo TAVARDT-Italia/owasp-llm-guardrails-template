@@ -1,76 +1,103 @@
-# OWASP LLM01 Guardrails Template & Guida alla Sicurezza dell'IA
+# OWASP LLM01 Guardrails Template e Blueprint di Sicurezza per IA
 
 [![OWASP LLM01](https://img.shields.io/badge/OWASP-LLM01%20Hardened-ff0055.svg)](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 [![AI Diagnostics](https://img.shields.io/badge/TAVARDT-AI%20Evaluator-5b3cf5.svg)](https://tools.tavardt.com/it/valutatore-robustezza-llm/)
 [![Licence MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Blueprint dichiarativo e middleware open source per la mitigazione del Prompt Injection (OWASP LLM01), fuga di prompt di sistema e attacchi avversari su agenti di IA, conforme al RGPD e all'AI Act europeo.
+***
+
+Middleware open source e blueprint di sicurezza per la mitigazione di Prompt Injection (OWASP LLM01), estrazione dei prompt di sistema e jailbreak avversari, sviluppato da **TAVARDT**, in piena conformità con le linee guida AgID sull'IA, il Regolamento Europeo sull'IA e il GDPR.
+
+I Large Language Model elaborano le istruzioni di sistema e i dati immessi dagli utenti all'interno del medesimo contesto di esecuzione. Senza un livello applicativo di sanificazione degli input e verifica delle risposte tramite token canarino, gli agenti autonomi e le pipeline RAG rimangono esposti a manipolazioni del contesto e divulgazione di informazioni riservate.
 
 ***
 
-## 1. Panoramica dell'Architettura di Sicurezza per l'IA
+## Funzionalità Principali e Architettura Difensiva
 
-Questo repository fornisce una libreria modulare e leggera per implementare **guardrail** deterministici su agenti autonomi, architetture RAG e applicazioni aziendali che utilizzano Large Language Models (OpenAI, Anthropic, Gemini, Llama, Mistral).
-
-### La Necessità Critica di Guardrail a Livello Applicativo
-I modelli di linguaggio non distinguono nativamente tra istruzioni operative di sistema e input forniti dall'utente. Senza controlli attivi in ingresso e in uscita, i sistemi basati su IA rimangono esposti a dirottamenti di contesto, furto di proprietà intellettuale e manipolazione delle risposte.
-
-***
-
-## 2. Vettori di Minaccia Mitigati (OWASP Top 10 for LLMs)
-
-| Livello di Difesa | Vettore Mitigato | Meccanismo di Protezione |
-| :- | :- | :- |
-| **Input Sanitizer** | Prompt Injection Diretto (Jailbreak) | Rilevamento euristico di comandi ostili (`ignora le istruzioni precedenti`, `DAN`, tag XML contraffatti). |
-| **Canary Token Verifier** | Fuga del Prompt di Sistema | Monitoraggio di token canarino crittografici nella risposta generata per bloccare la fuoriuscita di regole interne. |
-| **RAG Boundary Guard** | Prompt Injection Indiretto | Isolamento semantico dei documenti esterni recuperati all'interno della base vettoriale. |
-| **Structured Output Filter** | Chiamata Non Autorizzata di Strumenti | Validazione rigorosa degli schemi JSON prima dell'attivazione di chiamate a funzioni o connettori MCP. |
+* **Sanificazione Deterministica degli Input**: Esamina le richieste in ingresso mediante espressioni regolari compilate per bloccare tentativi di sovrascrittura delle istruzioni e manipolazioni di delimitatori prima della generazione.
+* **Verifica Crittografica tramite Token Canarino**: Introduce un token imprevedibile (`TAVARDT_CANARY_<hex16>`) generato dal modulo `secrets` per identificare e terminare sessioni che tentino di sottrarre il prompt di sistema.
+* **Copertura Completa delle Minacce**: Mitiga i rischi specificati negli standard OWASP-LLM01 (Prompt Injection), OWASP-LLM06 (Divulgazione di Informazioni Sensibili) e OWASP-LLM07 (Progettazione Insicura di Plugin).
+* **Zero Dipendenze Software Esterne**: Funziona interamente con la libreria standard di Python, garantendo una latenza inferiore a 2 millisecondi senza chiamate di rete verso servizi terzi.
+* **Integrazione Modulare e Immediata**: Protegge facilmente le chiamate verso qualsiasi fornitore di modelli (OpenAI, Anthropic, Google Gemini, modelli Llama self-hosted) in agenti autonomi, chatbot e sistemi RAG.
 
 ***
 
-## 3. Diagnosi Preventiva di Robustezza del Modello
+## Vettori di Rischio e Impatto Operativo
 
-Prima di mettere agenti intelligenti a contatto con clienti o processi aziendali, verificate la loro resilienza con gli strumenti di diagnosi TAVARDT:
+L'impiego operativo di modelli linguistici privi di guardrail applicativi espone il patrimonio informativo e i tool aziendali a manipolazioni malevole. Il blueprint neutralizza quattro vettori fondamentali:
 
-* **Valutazione di Robustezza IA:** Valutatore di Robustezza di LLMs TAVARDT
-* **Suite Completa di Diagnostica:** **TAVARDT Tools Italia**
+* **Iniezione Diretta di Prompt (OWASP LLM01)**: Comandi ostili studiati per annullare le direttive iniziali (`ignore previous instructions`) e forzare l'esecuzione di compiti non consentiti.
+* **Esfiltrazione del Prompt di Sistema (OWASP LLM06)**: Richieste manipolatorie finalizzate a indurre il modello a mostrare le proprie istruzioni confidenziali e le regole operative interne.
+* **Manipolazione dei Delimitatori e Jailbreak via Ruoli**: Uso improprio di tag markdown o XML per attivare modalità sviluppatore o aggirare le restrizioni comportamentali.
+* **Iniezione Indiretta mediante Archivi Documentali**: Dati ostili occultati all'interno di documenti di terze parti memorizzati in database vettoriali per pipeline RAG.
 
 ***
 
-## 4. Installazione e Guida all'Integrazione Rapida
+## Installazione ed Esecuzione CLI
 
-### Clonazione ed Esecuzione
+Integrate il middleware di sicurezza nel vostro progetto Python o verificate il funzionamento locale tramite lo script rapido incluso:
 
 ```bash
+# Clonare il repository ufficiale
 git clone https://github.com/TAVARDT-Italia/owasp-llm-guardrails-template.git
+
+# Accedere alla directory del progetto
 cd owasp-llm-guardrails-template
+
+# Eseguire lo script di verifica rapida
 python examples/quickstart.py
 ```
 
-### Esempio di Integrazione in Python
+### Python Integration Example
+
+Proteggete qualsiasi chiamata di inferenza con controlli deterministici in ingresso e in uscita:
 
 ```python
 from guardrails.validator import LLMGuardrail
 
 guard = LLMGuardrail()
 
-# 1. Convalida in Ingresso (Input Guardrail)
+# 1. Ingress Validation (Input Guardrail)
 is_safe, error = guard.validate_input(user_input)
 if not is_safe:
-    raise ValueError(f"Input bloccato a causa di pattern ostile rilevato: {error}")
+    raise ValueError(f"Input blocked due to suspicious adversarial pattern: {error}")
 
-# 2. Iniezione del Token Canarino nel Prompt di Sistema
+# 2. Inject Canary Token into System Prompt
 hardened_system_prompt = guard.get_canary_injection_prompt(system_prompt)
 
-# 3. Convalida in Uscita (Output Guardrail)
+# 3. Egress Validation (Output Guardrail)
 is_valid, leak_error = guard.validate_output(completion)
 if not is_valid:
-    raise SecurityError("Allarme critico: Rilevata fuga di system prompt tramite token canarino!")
+    raise SecurityError("Critical alert: System prompt leak detected via canary token!")
 ```
 
 ***
 
-## 5. Link Utili
+## Domande Tecniche Frequenti
+
+### Quali vettori di vulnerabilità vengono neutralizzati dal template di guardrail OWASP LLM nelle pipeline di intelligenza artificiale?
+
+Il template impone difese applicative deterministiche contro iniezioni dirette di prompt, jailbreak avversari ed esfiltrazione delle istruzioni di sistema. Combinando l'analisi degli input tramite espressioni regolari con la verifica delle uscite mediante token canarino, il middleware protegge i modelli senza richiedere attività di fine-tuning.
+
+### Come opera la verifica dinamica tramite token canarino per impedire la fuga del prompt di sistema?
+
+La classe LLMGuardrail genera un identificatore crittografico univoco e lo inserisce nelle istruzioni di sistema assieme a una direttiva esplicita di segretezza. Durante la fase di output, il validatore analizza il testo generato e blocca tempestivamente qualsiasi risposta che contenga il token riservato.
+
+### Per quale motivo è necessaria la sanificazione deterministica degli input se il modello possiede già filtri etici?
+
+I filtri comportamentali dei modelli possono essere aggirati mediante formulazioni linguistiche complesse, codifiche insolite o scenari di simulazione di ruolo. L'analisi preliminare degli input intercetta i pattern malevoli noti prima che raggiungano il contesto computazionale, azzerando i rischi e contenendo i costi di inferenza.
+
+### In che modo questo template di guardrail si integra in pipeline di agenti autonomi e architetture RAG?
+
+Il guardrail protegge le sessioni di inferenza sanificando sia i frammenti documentali recuperati sia i messaggi inviati dagli utenti prima della composizione del prompt finale. Questa separazione impedisce che iniezioni indirette celate nei database vettoriali alterino il ragionamento dell'agente o attivino strumenti software non autorizzati.
+
+### Qual è il sovraccarico computazionale e l'impatto sulla latenza introdotto dallo strato di convalida?
+
+Il validatore Python opera completamente in memoria locale impiegando espressioni regolari precompilate e confronti nativi tra stringhe, terminando l'analisi in meno di 2 millisecondi. Poiché non effettua interrogazioni verso API remote né si affida a modelli secondari, la soluzione non introduce latenza di rete negli ambienti di produzione.
+
+***
+
+## Link Utili
 
 * **Portale Aziendale:** https://ag.tavardt.com/it/
 * **Suite di Diagnostica:** https://tools.tavardt.com/it/
@@ -79,8 +106,7 @@ if not is_valid:
 ***
 
 ### Licenza
-
-Distribuito sotto licenza open-source MIT.
+Distribuito sotto la Licenza MIT. Consultare il file [LICENSE](LICENSE) per tutti i dettagli.
 
 ***
 
